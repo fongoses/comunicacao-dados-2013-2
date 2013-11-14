@@ -1,0 +1,25 @@
+UFRGS - Universidade Federal do Rio Grande do Sul
+Instituto de Informática
+Disciplina de Comunicação de Dados
+
+ESPECIFICAÇÃO DO TRABALHO FINAL
+
+OBJETIVO:
+Aplicar as técnicas de análise de sinais, tais como: codificação de fonte, codificação de canal, modulação, ruído e transformação do domínio tempo e frequência.
+
+TAREFAS:
+Desenvolver uma simulação que possua todas as etapas de uma transmissão de dados, como pode ser observado na figura.
+Em cada etapa deve ser definida, implementada e testada a técnica utilizada.
+Dessa forma, o trabalho será organizado em duas fases:
+1) Definição das técnicas utilizadas em cada etapa da transmissão de dados. Essas técnicas deverão ser definidas e avaliadas pelo professor até o dia 28/11/2013.
+2) Projeto, desenvolvimento, testes, análise e apresentação do simulador desenvolvido.
+
+AVALIAÇÃO:
+1) Implementação e visualização das funcionalidade escolhidas - valor 3.
+2) Teste e análise do comportamento das funcionalidades simuladas - valor 3.
+3) Relatório de 4 páginas de acordo com o padrão SBC (http://www.sbc.org.br) - valor 3.0.
+4) Apresentação e demonstração do trabalho em aula - valor 1.0.
+
+O trabalho poderá ser realizado em dupla.
+
+Data de entrega e apresentação: 05/12/2013
