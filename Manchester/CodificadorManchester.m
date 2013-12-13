@@ -1,6 +1,6 @@
-function CodificadorManchester(Dados, Clock, SNR, Amostras)
+function CodificadorManchester(Dados, Clock, VarianciaRuido, Amostras)
 %% Codificador Manchester.
-%   CodificadorManchester(Dados, Clock, SNR, Amostras)
+%   CodificadorManchester(Dados, Clock, VarianciaRuido, Amostras)
 %
 %   Exemplo: CodificadorManchester([0 1 1 0 0 0 1 1], 10, 10, 100)
 
@@ -17,8 +17,8 @@ Intervalo = Clock / Amostras;
 t = [0 : Intervalo : Time];
 t = t(1, 1:length(t) - 1);
 
-% Janela 1
-figure('name', 'Codificação NRZ');
+% Janela com  Sinal Gerado
+figure('name', 'Sinal Gerado pelo Transmissor');
 
 
 %% Sinal de Clock
@@ -35,7 +35,7 @@ for i = 1 : length(SinalClock)
     SinalClock(i) = fase;
 end
 % Plotagem do SinalClock
-subplot(2, 1, 1);
+subplot(4, 1, 1);
 plot(t, SinalClock);
 title('Sinal do Clock');
 xlabel('Tempo (s)');
@@ -49,7 +49,7 @@ for i = 1 : length(NRZ)
     NRZ(i) = Dados(ceil(i / Amostras));
 end
 % Plotagem do NRZ
-subplot(2, 1, 2);
+subplot(4, 1, 2);
 plot(t, NRZ);
 title('Sinal NRZ');
 xlabel('Tempo (s)');
@@ -60,21 +60,12 @@ ylim([-0.5 1.5]);
 %% Gera o sinal Manchester
 Manchester = V * (xor(SinalClock, NRZ) - 0.5);
 
-% Plotagem
-figure('name', 'Codificação Manchester');
-% Plotagem do SinalClock
-subplot(2, 1, 1);
-plot(t, SinalClock);
-title('Sinal do Clock');
-xlabel('Tempo (s)');
-ylabel('Sinal de Clock (V)');
-ylim([-0.5 1.5]);
 % Plotagem do Manchester
-subplot(2, 1, 2);
+subplot(4, 1, 3);
 plot(t, Manchester);
 title('Codificação Manchester');
 xlabel('Tempo (s)');
-ylabel('Sinal codificado com Manchester (V)');
+ylabel('Sinal Manchester (V)');
 ylim(V * [-1 1]);
 
 
@@ -120,23 +111,48 @@ for i = 2 : length(ManchesterDiferencial)-1
 end
 ManchesterDiferencial = V * (ManchesterDiferencial - 0.5);
 
-% Plotagem
-figure('name', 'Codificação Manchester Diferencial');
-% Plotagem do SinalClock
-subplot(2, 1, 1);
-plot(t, SinalClock);
-title('Sinal do Clock');
-xlabel('Tempo (s)');
-ylabel('Sinal de Clock (V)');
-ylim([-0.5 1.5]);
 % Plotagem do Manchester Diferencial
-subplot(2, 1, 2);
+subplot(4, 1, 4);
 plot(t, ManchesterDiferencial);
 title('Codificação Manchester Diferencial');
 xlabel('Tempo (s)');
-ylabel('Sinal codificado com Manchester Diferencial (V)');
+ylabel('Sinal Man. Dif. (V)');
 ylim(V * [-1 1]);
 
 
-%% Acrescenta um ruído
+%% Gera os Dados Com Ruído
+figure('name', 'Sinais no Meio Físico (com Ruído)');
+
+% Acrescenta um ruído AWGN
+Ruido = sqrt(VarianciaRuido) * randn(size(t));
+
+subplot(4, 1, 1);
+plot(t, Ruido);
+title('Ruído AWGN');
+xlabel('Tempo (s)');
+ylabel('Ruído (V)');
+ylim(VarianciaRuido * [-1 1]);
+
+
+%% Gera o sinal Manchester com Ruido
+ManchesterRuido = Manchester + Ruido
+
+subplot(4, 1, 3);
+plot(t, ManchesterRuido);
+title('Codificação Manchester');
+xlabel('Tempo (s)');
+ylabel('S. Manch. Ruido (V)');
+ylim(V * [-1 1]);
+
+
+%% Manchester Diferencial com Ruído
+ManchesterDiferencialRuido = ManchesterDiferencial + Ruido
+
+subplot(4, 1, 4);
+plot(t, ManchesterDiferencialRuido);
+title('Codificação Manchester Diferencial');
+xlabel('Tempo (s)');
+ylabel('S. Man. Dif. Ruido (V)');
+ylim(V * [-1 1]);
+
 
