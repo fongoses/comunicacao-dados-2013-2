@@ -182,7 +182,6 @@ ylim([-0.5 1.5]);
 
 
 % Gera o Unipolar a partir do Manchester
-%Manchester = V * (xor(SinalClock, Unipolar) - 0.5);
 ManchesterRecebido = zeros(1, length(ManchesterRuido));
 for i = 1 : length(ManchesterRecebido)
     if mod(i - 1, (Amostras / 2)) == 0 % Pega o meio do clock
@@ -218,46 +217,61 @@ display(sprintf('Texto Recebido (Manchester):\n%s', Texto_Manchester));
 BER_Manchester = sum(Dados ~= DadosManchester)/length(Dados) * 100;
 display(sprintf('BER dos dados Recebidos (Manchester): %.2f%%', BER_Manchester));
 
-return
 
 % Gera o Unipolar a partir do Manchester Diferencial
-ManchesterDiferencial = zeros(1, length(t));
+ManchesterDiferencialRecebido = zeros(1, length(ManchesterDiferencialRuido));
+for i = 1 : length(ManchesterDiferencialRecebido)
+    if mod(i - 1, (Amostras / 2)) == 0 % Pega o meio do clock
+        if (ManchesterDiferencialRuido(i + Threshold) / V) + 0.5 >= 0.5
+            ValorSinal = 1;
+        else
+            ValorSinal = 0;
+        end
+    end
+    ManchesterDiferencialRecebido(i) = ValorSinal;
+end
 
-fase = Unipolar(1);
-
-ManchesterDiferencial(1) = fase;
-
-Threshold = floor(Amostras / 4); % Limite para pegar a metade da borda de subida do clock e amostrar o Unipolar aí
-
-for i = 2 : length(ManchesterDiferencial)-1
-    if mod(i, (Amostras / 2)) == 0 % Pega o meio do clock
-        if SinalClock(i - 1) == 0 & SinalClock(i) == 1 % borda de subida
+UnipolarManchesterDiferencial = zeros(1, length(ManchesterDiferencialRecebido));
+fase = 1;
+for i = 1 : length(UnipolarManchesterDiferencial)
+    if mod(i - 1, (Amostras / 2)) == 0 % Pega o meio do clock
+        if SinalClock(i) == 1 % borda de subida
             % Primeira Metade
-            if Unipolar(i + Threshold) == 0
-                if fase == 0
-                    fase = 1;
-                else
-                    fase = 0;
-                end
+            if ManchesterDiferencialRecebido(i + Threshold) == fase
+                % Primeira metade do bit atual = Final do bit anterior => fase não alterou, então bit 1
+                ValorSinal = 1;
+            else
+                % Mudança de fase, então bit 0
+                ValorSinal = 0;
             end
         else % Borda de descida
             % Segunda Metade
-            if fase == 0
-                fase = 1;
-            else
-                fase = 0;
-            end
+            % Armazena a fase para testar na iteração seguinte
+            fase = ManchesterDiferencialRecebido(i + Threshold);
         end
     end
-    ManchesterDiferencial(i) = fase;
+
+    UnipolarManchesterDiferencial(i) = ValorSinal;
 end
-ManchesterDiferencial = V * (ManchesterDiferencial - 0.5);
 
 subplot(4, 1, 4);
-%plot(t, UnipolarRecebido_ManchesterDiferencial);
+plot(t, UnipolarManchesterDiferencial);
 title('Sinal Unipolar recebido do Manchester Diferencial');
 xlabel('Tempo (s)');
 ylabel('Sinal Unipolar (V)');
 ylim([-0.5 1.5]);
 
+% Gera os Dados do Manchester Diferencial a partir o Unipolar Recebido
+DadosManchesterDiferencial = [];
+for i = 1 : length(UnipolarManchesterDiferencial)
+    if mod(i - 1, Amostras) == 0 % Pega o início do clock
+        DadosManchesterDiferencial = [ DadosManchesterDiferencial UnipolarManchesterDiferencial(i + Threshold) ];
+    end
+end
+display(sprintf('Dados de Recebidos (Manchester Diferencial):\n%s', num2str(DadosManchesterDiferencial)));
 
+Texto_ManchesterDiferencial = char(bin2dec(num2str(vec2mat(DadosManchesterDiferencial, 8),-8)))';
+display(sprintf('Texto Recebido (Manchester Diferencial):\n%s', Texto_ManchesterDiferencial));
+
+BER_ManchesterDiferencial = sum(Dados ~= DadosManchesterDiferencial)/length(Dados) * 100;
+display(sprintf('BER dos dados Recebidos (Manchester Diferencial): %.2f%%', BER_ManchesterDiferencial));
